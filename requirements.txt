@@ -1,0 +1,21 @@
+# requirements.txt
+
+# For data manipulation
+pandas
+numpy
+
+# For web framework and serving
+fastapi
+uvicorn[standard]
+
+# For database connection
+SQLAlchemy
+psycopg2-binary
+
+# For OpenAI and LangChain functionality
+langchain
+langchain-openai
+langchain-core
+
+# For loading environment variables from .env file
+python-dotenv

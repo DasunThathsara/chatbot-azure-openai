@@ -36,7 +36,7 @@ def load_data_from_postgres(user, password, host, port, db, table) -> pd.DataFra
         encoded_password = quote_plus(password)
         
         # Construct the database URL. Azure PostgreSQL requires SSL by default.
-        db_url = f'postgresql://{user}:{encoded_password}@{host}:{port}/{db}?sslmode=require'
+        db_url = f'postgresql://{user}:{encoded_password}@{host}:{port}/{db}'
         
         engine = create_engine(db_url)
         query = f'SELECT * FROM "{table}"'

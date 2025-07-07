@@ -9,23 +9,20 @@ from langchain_openai import AzureChatOpenAI
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from dotenv import load_dotenv
+from urllib.parse import quote_plus
 
 # ==============================================================================
 # 1. CONFIGURATION
 # ==============================================================================
-# This line loads the variables from your .env file into the environment
 load_dotenv()
 
-# --- PostgreSQL Database Configuration (Values are now read from .env) ---
+# --- PostgreSQL Database Configuration ---
 DB_USER = os.getenv("DB_USER")
 DB_PASSWORD = os.getenv("DB_PASSWORD")
 DB_HOST = os.getenv("DB_HOST")
 DB_PORT = os.getenv("DB_PORT")
 DB_NAME = os.getenv("DB_NAME")
 TABLE_NAME = os.getenv("TABLE_NAME")
-
-# Note: Azure keys are also loaded automatically from the .env file by load_dotenv(),
-# so we no longer need to set them manually in the code.
 
 # ==============================================================================
 # 2. DATA AND MODEL LOADING (Done once at startup)
@@ -35,12 +32,19 @@ def load_data_from_postgres(user, password, host, port, db, table) -> pd.DataFra
     """Connects to a PostgreSQL database and loads a table into a pandas DataFrame."""
     print(f"Connecting to PostgreSQL and loading table '{table}'...")
     try:
-        db_url = f'postgresql://{user}:{password}@{host}:{port}/{db}'
+        # URL-encode the password to handle special characters safely
+        encoded_password = quote_plus(password)
+        
+        # Construct the database URL. Azure PostgreSQL requires SSL by default.
+        db_url = f'postgresql://{user}:{encoded_password}@{host}:{port}/{db}?sslmode=require'
+        
         engine = create_engine(db_url)
         query = f'SELECT * FROM "{table}"'
         df = pd.read_sql_query(query, con=engine)
+        
         print(f"\n✅ Loaded {len(df)} rows from table '{table}' into memory.")
         return df
+        
     except Exception as e:
         print(f"❌ Could not connect to the database or load the table. Error: {e}")
         return None
